@@ -2,7 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\PublicCuestionarioController;
+
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\ClasificacionController;
@@ -13,14 +16,26 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\SubfuncionController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\NivelRiesgoController;
+use App\Http\Controllers\CuestionarioController;
+use App\Http\Controllers\TwilioController;
+
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+
+// Rutas públicas sin autenticación
+Route::get('/encuesta/{token}', [PublicCuestionarioController::class, 'show']);
+Route::post('/encuesta/{token}', [PublicCuestionarioController::class, 'store']);
+//Route::post('/encuesta/responder', [PublicCuestionarioController::class, 'store']);
+
+
 
 // 🧾 Generar y mostrar PDF en el navegador
 Route::get('/clasificaciones/{id}/pdf', [ReporteController::class, 'clasificacionPdf']);
 // 💬 Enviar link del PDF al WhatsApp (usa Twilio)
 Route::post('/send-report/{id}', [ReporteController::class, 'enviarLinkPdfWssp']);
+Route::post('/send-survey', [TwilioController::class, 'sendSurveyLink']);
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
@@ -162,6 +177,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/actividades/{id}', [ActividadEconomicaController::class, 'destroy']);
     // Restaurar
     Route::post('/actividades/{id}/restore', [ActividadEconomicaController::class, 'restore']);
+
+    ////// CUESTIONARIO DE SATISFACCION //////
+    Route::post('/cuestionario', [CuestionarioController::class, 'store']);
+    Route::get('/cuestionario/{clasificacion}', [CuestionarioController::class, 'show']);
     
 });
 

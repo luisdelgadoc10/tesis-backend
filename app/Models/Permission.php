@@ -8,5 +8,5 @@ class Permission extends SpatiePermission
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'guard_name', 'estado'];
+    protected $fillable = ['name','descripcion', 'guard_name', 'estado'];
 }

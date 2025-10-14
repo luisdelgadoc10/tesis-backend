@@ -60,6 +60,31 @@ class DatabaseSeeder extends Seeder
             SubfuncionSeeder::class,
         ]);
 
+        this->call([
+            PermissionSeeder::class,
+        ]);
+
+        this->call([
+            RolSeeder::class,
+        ]);
+
+        this->call([
+            RolePermissionSeeder::class,
+        ]);
+
+        this->call([
+            UserRoleSeeder::class,
+        ]);
+
+        this->call([
+            NivelesSatisfaccionSeeder::class,
+        ]);
+
+        this->call([
+            PreguntasSeeder::class,
+        ]);
+
+
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',

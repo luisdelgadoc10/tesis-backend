@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Role; // usamos tu modelo extendido
+use App\Models\Role;
 use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
@@ -32,16 +32,22 @@ class RoleController extends Controller
             'permissions' => 'array'
         ]);
 
+        // Crear rol con guard_name específico
         $role = Role::create([
             'name' => $request->name,
+            'guard_name' => 'web', // Especificar guard web
             'estado' => 1 // por defecto activo
         ]);
 
         if ($request->has('permissions')) {
-            $role->syncPermissions($request->permissions);
+            // Obtener los permisos por sus IDs y sincronizarlos
+            $permissions = Permission::whereIn('id', $request->permissions)
+                                   ->where('guard_name', 'web') // Solo permisos con guard web
+                                   ->get();
+            $role->syncPermissions($permissions);
         }
 
-        return response()->json($role, 201);
+        return response()->json($role->load('permissions'), 201);
     }
 
     // Mostrar un rol con sus permisos
@@ -68,10 +74,14 @@ class RoleController extends Controller
         ]);
 
         if ($request->has('permissions')) {
-            $role->syncPermissions($request->permissions);
+            // Obtener los permisos por sus IDs y sincronizarlos
+            $permissions = Permission::whereIn('id', $request->permissions)
+                                   ->where('guard_name', 'web') // Solo permisos con guard web
+                                   ->get();
+            $role->syncPermissions($permissions);
         }
 
-        return response()->json($role);
+        return response()->json($role->load('permissions'));
     }
 
     // Desactivar (estado = 0)
@@ -109,6 +119,4 @@ class RoleController extends Controller
 
         return response()->json(['message' => 'Rol restaurado correctamente']);
     }
-
-    
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 use App\Models\User;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -53,5 +54,16 @@ class Clasificacion extends Model
     public function detalle()
     {
         return $this->hasOne(ClasificacionDetalle::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($clasificacion) {
+            if (empty($clasificacion->token_encuesta)) {
+                $clasificacion->token_encuesta = Str::uuid();
+            }
+        });
     }
 }
