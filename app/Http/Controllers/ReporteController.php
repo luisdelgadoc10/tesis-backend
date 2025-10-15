@@ -36,7 +36,7 @@ class ReporteController extends Controller
         ]);
 
         $numero = $request->telefono; // ← toma el número del POST
-        $link = "https://overbig-melaine-shakily.ngrok-free.dev/api/clasificaciones/{$id}/pdf";
+        $link = env('APP_URL') . "/api/clasificaciones/{$id}/pdf";
 
         $twilio = new \Twilio\Rest\Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
         
