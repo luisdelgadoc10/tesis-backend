@@ -38,7 +38,7 @@ class ReporteController extends Controller
         $numero = $request->telefono; // ← toma el número del POST
         $link = env('APP_URL') . "/api/clasificaciones/{$id}/pdf";
 
-        $twilio = new \Twilio\Rest\Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+        $twilio = new \Twilio\Rest\Client(env('TWILIO_ACCOUNT_SID'), env('TWILIO_AUTH_TOKEN'));
         
         $mensaje = "📄 Aquí tienes tu reporte generado: $link";
 
