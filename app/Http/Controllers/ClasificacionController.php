@@ -276,7 +276,7 @@ class ClasificacionController extends Controller
 
         try {
             // ✅ Usar variable de entorno
-            $baseUrl = rtrim(env('ML_API_URL', 'http://127.0.0.1:8001'), '/');
+            $baseUrl = rtrim(env('ML_API_URL'), '/');
             $response = Http::post($baseUrl . $endpoint, $datosEntrada);
 
             if ($response->successful()) {

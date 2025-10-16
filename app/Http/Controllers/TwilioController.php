@@ -7,6 +7,7 @@ use Twilio\Rest\Client;
 
 class TwilioController extends Controller
 {
+    // NO USO
     public function sendReport(Request $request)
     {
         $request->validate([
