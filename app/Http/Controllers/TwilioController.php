@@ -53,7 +53,7 @@ class TwilioController extends Controller
         $frontend = env('FRONTEND_URL', env('APP_URL'));
         $surveyUrl = rtrim($frontend, '/') . '/encuesta/' . $request->token;
 
-        $body = "👋 Hola! Gracias por participar.\n\nPor favor completa la encuesta de satisfacción en el siguiente enlace:\n\n{$surveyUrl}\n\n¡Tu opinión es muy importante para nosotros! 🙌";
+        $body = "👋 Hola! Gracias por colaborar con nosotros.\n\nPor favor completa la encuesta de satisfacción en el siguiente enlace:\n\n{$surveyUrl}\n\n¡Tu opinión es muy importante para nosotros! 🙌";
 
         try {
             $message = $twilio->messages->create(
