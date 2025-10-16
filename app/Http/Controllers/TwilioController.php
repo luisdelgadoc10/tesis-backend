@@ -41,7 +41,7 @@ class TwilioController extends Controller
     {
         $request->validate([
             'phone' => 'required|string', // Ej: +51999999999
-            'token' => 'required|string', // Token de la encuesta
+            'token' => 'required|string',
         ]);
 
         $sid = env('TWILIO_ACCOUNT_SID');
@@ -49,8 +49,9 @@ class TwilioController extends Controller
         $whatsapp_from = env('TWILIO_WHATSAPP_NUMBER');
         $twilio = new Client($sid, $token);
 
-        // URL pública de la encuesta
-        $surveyUrl = "https://overbig-melaine-shakily.ngrok-free.dev/api/encuesta/" . $request->token;
+        // Usa FRONTEND_URL en .env (ej: https://tesis-frontend-seven.vercel.app)
+        $frontend = env('FRONTEND_URL', env('APP_URL'));
+        $surveyUrl = rtrim($frontend, '/') . '/encuesta/' . $request->token;
 
         $body = "👋 Hola! Gracias por participar.\n\nPor favor completa la encuesta de satisfacción en el siguiente enlace:\n\n{$surveyUrl}\n\n¡Tu opinión es muy importante para nosotros! 🙌";
 
@@ -76,5 +77,6 @@ class TwilioController extends Controller
             ], 500);
         }
     }
+
 
 }
