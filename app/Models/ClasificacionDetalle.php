@@ -15,6 +15,7 @@ class ClasificacionDetalle extends Model
         'riesgo_incendio',
         'riesgo_colapso',
         'riesgo_final',
+        'tiempo_envio_reporte',
     ];
 
     protected $casts = [
