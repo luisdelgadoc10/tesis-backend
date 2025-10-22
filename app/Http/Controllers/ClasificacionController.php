@@ -200,7 +200,7 @@ class ClasificacionController extends Controller
                     'tipo_establecimiento'              => $request->input('tipo_establecimiento'),
                 ];
 
-            case 'OFICINAS':
+            case 'OFICINAS ADMINISTRATIVAS':
                 return [
                     'numero_pisos_edificacion'          => $request->input('numero_pisos_edificacion'),
                     'area_techada_por_piso_m2'          => $request->input('area_techada_por_piso_m2'),
@@ -263,7 +263,7 @@ class ClasificacionController extends Controller
             'HOSPEDAJE'  => '/funcion-hospedaje',
             'EDUCACION'  => '/funcion-educacion',
             'INDUSTRIAL' => '/funcion-industrial',
-            'OFICINAS'   => '/funcion-oficinas',
+            'OFICINAS ADMINISTRATIVAS'   => '/funcion-oficinas',
             'COMERCIO'   => '/funcion-comercio',
             'ALMACEN'    => '/funcion-almacen',
         ];
