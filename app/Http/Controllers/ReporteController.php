@@ -35,15 +35,7 @@ class ReporteController extends Controller
             'telefono' => 'required|string',
         ]);
 
-        // Verificar si ya se envió antes
         $detalle = ClasificacionDetalle::where('clasificacion_id', $id)->first();
-
-        if ($detalle && $detalle->tiempo_envio_reporte !== null) {
-            return response()->json([
-                'success' => false,
-                'message' => 'El reporte ya fue enviado anteriormente.',
-            ], 409); // 409 Conflict
-        }
 
         $numero = $request->telefono;
         $link = env('APP_URL') . "/api/clasificaciones/{$id}/pdf";
@@ -64,16 +56,20 @@ class ReporteController extends Controller
 
             // 🕒 Finalizar conteo y calcular tiempo en milisegundos
             $end = microtime(true);
-            $tiempoMs = round(($end - $start) * 1000, 2); // ✅ Igual que tu modelo de ML
+            $tiempoMs = round(($end - $start) * 1000, 2);
 
-            // Guardar solo si nunca se había enviado
+            // ✅ Guardar solo si es la primera vez que se envía
             if (!$detalle) {
                 $detalle = new ClasificacionDetalle();
                 $detalle->clasificacion_id = $id;
+                $detalle->tiempo_envio_reporte = $tiempoMs;
+                $detalle->save();
+            } elseif ($detalle->tiempo_envio_reporte === null) {
+                // Si existe pero aún no se ha registrado el tiempo, también lo guarda
+                $detalle->tiempo_envio_reporte = $tiempoMs;
+                $detalle->save();
             }
-
-            $detalle->tiempo_envio_reporte = $tiempoMs;
-            $detalle->save();
+            // Si ya tiene tiempo registrado, no se modifica nada más
 
             return response()->json([
                 'success' => true,
@@ -88,6 +84,7 @@ class ReporteController extends Controller
             ], 500);
         }
     }
+
 
 
 }

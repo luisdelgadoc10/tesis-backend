@@ -206,8 +206,8 @@
                         <td>{{ $clasificacion->detalle->riesgo_incendio ?? 'N/A' }}</td>
                         <td>{{ $clasificacion->detalle->riesgo_colapso ?? 'N/A' }}</td>
                         <td>{{ $clasificacion->detalle->riesgo_final ?? 'N/A' }}</td>
-                        <td>{{ isset($resultado['confianza']) ? number_format($resultado['confianza'], 2) : 'N/A' }}</td>
-                        <td>{{ $resultado['tiempo_ms'] ?? 'N/A' }}</td>
+                        <td>{{ isset($resultado['confianza']) ? $resultado['confianza'] : 'N/A' }}%</td>
+                        <td>{{ $resultado['tiempo_s'] ?? 'N/A' }}</td>
                     </tr>
                 @else
                     <tr>

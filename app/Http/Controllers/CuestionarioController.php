@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\RespuestaCuestionario;
@@ -11,6 +11,20 @@ use Carbon\Carbon;
 
 class CuestionarioController extends Controller
 {
+    /**
+     * Listar todas las respuestas del cuestionario
+     */
+    public function index()
+    {
+        $respuestas = RespuestaCuestionario::with([
+            'clasificacion.establecimiento',
+            'pregunta',
+            'nivelSatisfaccion'
+        ])->get();
+
+        return response()->json($respuestas);
+    }
+
     /**
      * Registrar respuestas del cuestionario
      */

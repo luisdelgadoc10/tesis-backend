@@ -29,7 +29,6 @@ Route::post('/encuesta/{token}', [PublicCuestionarioController::class, 'store'])
 //Route::post('/encuesta/responder', [PublicCuestionarioController::class, 'store']);
 
 
-
 // 🧾 Generar y mostrar PDF en el navegador
 Route::get('/clasificaciones/{id}/pdf', [ReporteController::class, 'clasificacionPdf']);
 // 💬 Enviar link del PDF al WhatsApp (usa Twilio)
@@ -46,6 +45,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/users/{id}/restore', [UserController::class, 'restore']);
     // Actualizar usuario
     Route::put('/users/{id}', [UserController::class, 'update']);
+
+    ////// CUESTIONARIO DE SATISFACCION //////
+    Route::get('/satisfaccion', [CuestionarioController::class, 'index']);
+    Route::get('/satisfaccion/{clasificacionId}', [CuestionarioController::class, 'show']);
 
     
 

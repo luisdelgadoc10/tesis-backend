@@ -43,6 +43,6 @@ class RespuestaCuestionario extends Model
      */
     public function nivelSatisfaccion()
     {
-        return $this->belongsTo(NivelSatisfaccion::class, 'nivel_satisfaccion_id');
+        return $this->belongsTo(NivelSatisfaccion::class);
     }
 }
