@@ -54,19 +54,19 @@ class ReporteController extends Controller
                 ]
             );
 
-            // 🕒 Finalizar conteo y calcular tiempo en milisegundos
+            // 🕒 Finalizar conteo y calcular tiempo en segundos
             $end = microtime(true);
-            $tiempoMs = round(($end - $start) * 1000, 2);
+            $tiempoS = round($end - $start, 2);
 
             // ✅ Guardar solo si es la primera vez que se envía
             if (!$detalle) {
                 $detalle = new ClasificacionDetalle();
                 $detalle->clasificacion_id = $id;
-                $detalle->tiempo_envio_reporte = $tiempoMs;
+                $detalle->tiempo_envio_reporte = $tiempoS;
                 $detalle->save();
             } elseif ($detalle->tiempo_envio_reporte === null) {
                 // Si existe pero aún no se ha registrado el tiempo, también lo guarda
-                $detalle->tiempo_envio_reporte = $tiempoMs;
+                $detalle->tiempo_envio_reporte = $tiempoS;
                 $detalle->save();
             }
             // Si ya tiene tiempo registrado, no se modifica nada más
@@ -74,7 +74,7 @@ class ReporteController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Reporte enviado exitosamente.',
-                'tiempo_ms' => $tiempoMs,
+                'tiempo_s' => $tiempoS,
             ]);
         } catch (\Exception $e) {
             \Log::error('Error al enviar mensaje Twilio: ' . $e->getMessage());
