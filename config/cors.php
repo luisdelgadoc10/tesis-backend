@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173','http://127.0.0.1:8001','https://tesis-frontend-seven.vercel.app'],
+    'allowed_origins' => ['http://localhost:5173','http://127.0.0.1:8001','https://tesis-frontend-seven.vercel.app','https://smartrisk-psi.vercel.app'],
 
     'allowed_origins_patterns' => [],
 
