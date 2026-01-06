@@ -8,7 +8,16 @@ use Illuminate\Http\Request;
 class NivelRiesgoController extends Controller
 {
     /**
-     * Muestra todos los niveles de riesgo
+     * @OA\Get(
+     *     path="/api/niveles-riesgo",
+     *     summary="Listar niveles de riesgo",
+     *     description="Devuelve todos los niveles de riesgo registrados",
+     *     tags={"Nivel de Riesgo"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Listado de niveles de riesgo"
+     *     )
+     * )
      */
     public function index()
     {
@@ -17,7 +26,26 @@ class NivelRiesgoController extends Controller
     }
 
     /**
-     * Muestra un nivel de riesgo específico
+     * @OA\Get(
+     *     path="/api/niveles-riesgo/{id}",
+     *     summary="Mostrar nivel de riesgo",
+     *     description="Devuelve un nivel de riesgo específico por ID",
+     *     tags={"Nivel de Riesgo"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Nivel de riesgo encontrado"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Nivel de riesgo no encontrado"
+     *     )
+     * )
      */
     public function show($id)
     {
@@ -31,7 +59,31 @@ class NivelRiesgoController extends Controller
     }
 
     /**
-     * Crea un nuevo nivel de riesgo
+     * @OA\Post(
+     *     path="/api/niveles-riesgo",
+     *     summary="Crear nivel de riesgo",
+     *     tags={"Nivel de Riesgo"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nombre"},
+     *             @OA\Property(
+     *                 property="nombre",
+     *                 type="string",
+     *                 maxLength=255,
+     *                 example="Alto"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Nivel de riesgo creado correctamente"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación"
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -50,7 +102,41 @@ class NivelRiesgoController extends Controller
     }
 
     /**
-     * Actualiza un nivel de riesgo existente
+     * @OA\Put(
+     *     path="/api/niveles-riesgo/{id}",
+     *     summary="Actualizar nivel de riesgo",
+     *     tags={"Nivel de Riesgo"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nombre"},
+     *             @OA\Property(
+     *                 property="nombre",
+     *                 type="string",
+     *                 maxLength=255,
+     *                 example="Riesgo Medio"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Nivel de riesgo actualizado correctamente"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Nivel de riesgo no encontrado"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación"
+     *     )
+     * )
      */
     public function update(Request $request, $id)
     {
@@ -73,20 +159,4 @@ class NivelRiesgoController extends Controller
             'data' => $nivel,
         ]);
     }
-
-    // /**
-    //  * Elimina un nivel de riesgo
-    //  */
-    // public function destroy($id)
-    // {
-    //     $nivel = NivelRiesgo::find($id);
-
-    //     if (!$nivel) {
-    //         return response()->json(['message' => 'Nivel de riesgo no encontrado'], 404);
-    //     }
-
-    //     $nivel->delete();
-
-    //     return response()->json(['message' => 'Nivel de riesgo eliminado correctamente']);
-    // }
 }

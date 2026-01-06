@@ -9,10 +9,27 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
+/**
+ * @OA\Tag(
+ *     name="Cuestionario",
+ *     description="Gestión de cuestionarios de satisfacción asociados a clasificaciones"
+ * )
+ */
 class CuestionarioController extends Controller
 {
     /**
      * Listar todas las respuestas del cuestionario
+     *
+     * @OA\Get(
+     *     path="/api/cuestionarios",
+     *     tags={"Cuestionario"},
+     *     summary="Listar respuestas de cuestionarios",
+     *     description="Obtiene todas las respuestas de los cuestionarios con sus relaciones",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Listado de respuestas del cuestionario"
+     *     )
+     * )
      */
     public function index()
     {
@@ -27,6 +44,44 @@ class CuestionarioController extends Controller
 
     /**
      * Registrar respuestas del cuestionario
+     *
+     * @OA\Post(
+     *     path="/api/cuestionarios",
+     *     tags={"Cuestionario"},
+     *     summary="Registrar respuestas de un cuestionario",
+     *     description="Registra las respuestas del cuestionario para una clasificación específica",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"clasificacion_id","respuestas"},
+     *             @OA\Property(property="clasificacion_id", type="integer", example=12),
+     *             @OA\Property(
+     *                 property="respuestas",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="pregunta_id", type="integer", example=3),
+     *                     @OA\Property(property="nivel_satisfaccion_id", type="integer", example=2)
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Cuestionario registrado correctamente"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="La clasificación ya respondió el cuestionario"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno del servidor"
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -39,7 +94,6 @@ class CuestionarioController extends Controller
 
         $clasificacionId = $request->clasificacion_id;
 
-        // ✅ Verificar si esta clasificación ya respondió el cuestionario
         if (RespuestaCuestionario::where('clasificacion_id', $clasificacionId)->exists()) {
             return response()->json([
                 'message' => 'Esta clasificación ya ha completado el cuestionario.',
@@ -76,7 +130,27 @@ class CuestionarioController extends Controller
     }
 
     /**
-     * Obtener las respuestas de una clasificación (opcional)
+     * Obtener las respuestas de una clasificación
+     *
+     * @OA\Get(
+     *     path="/api/cuestionarios/{clasificacionId}",
+     *     tags={"Cuestionario"},
+     *     summary="Obtener respuestas de un cuestionario por clasificación",
+     *     @OA\Parameter(
+     *         name="clasificacionId",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Respuestas encontradas"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No hay respuestas registradas"
+     *     )
+     * )
      */
     public function show($clasificacionId)
     {

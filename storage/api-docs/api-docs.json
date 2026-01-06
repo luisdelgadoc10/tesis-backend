@@ -1,0 +1,2386 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API TESIS - Sistema de Clasificación de Riesgo",
+        "description": "Documentación de la API del sistema de tesis",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Servidor de desarrollo"
+        }
+    ],
+    "paths": {
+        "/api": {},
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Registrar usuario",
+                "description": "Registra un nuevo usuario y genera un token de autenticación",
+                "operationId": "a718f172ff3ac464d723835815f8fb57",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Juan Pérez"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "juan@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuario registrado correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|abc123token"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Usuario registrado exitosamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Iniciar sesión",
+                "description": "Autentica al usuario y devuelve un token si las credenciales son válidas",
+                "operationId": "44212a9096e4b09358281e9ec8a0701d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "juan@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Inicio de sesión exitoso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|xyz456token"
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciales incorrectas"
+                    },
+                    "403": {
+                        "description": "Usuario inactivo"
+                    }
+                }
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Perfil del usuario",
+                "description": "Obtiene el perfil del usuario autenticado con roles y permisos",
+                "operationId": "7e3b0ab44699899907dc284c846a4db1",
+                "responses": {
+                    "200": {
+                        "description": "Perfil obtenido correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Cerrar sesión",
+                "description": "Revoca el token actual del usuario autenticado",
+                "operationId": "79854151e609bd20032aa5aa4d5a35c0",
+                "responses": {
+                    "200": {
+                        "description": "Sesión cerrada correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sesión cerrada exitosamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "No autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/actividades-economicas": {
+            "get": {
+                "tags": [
+                    "Actividad Económica"
+                ],
+                "summary": "Listar todas las actividades económicas",
+                "description": "Obtiene todas las actividades económicas, incluyendo las eliminadas (soft delete)",
+                "operationId": "4e9a361d181ddf551b00916b8b3fa83c",
+                "responses": {
+                    "200": {
+                        "description": "Listado de actividades",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "descripcion": {
+                                                "type": "string",
+                                                "example": "Comercio minorista"
+                                            },
+                                            "funcion_id": {
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "estado": {
+                                                "type": "integer",
+                                                "example": 1
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Actividad Económica"
+                ],
+                "summary": "Crear una nueva actividad económica",
+                "description": "Crear nueva actividad",
+                "operationId": "c2fdcc57bb9b49a180284345199656d0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "descripcion",
+                                    "funcion_id"
+                                ],
+                                "properties": {
+                                    "descripcion": {
+                                        "type": "string",
+                                        "example": "Servicios profesionales"
+                                    },
+                                    "funcion_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Actividad creada correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            }
+        },
+        "/api/actividades-economicas/activas": {
+            "get": {
+                "tags": [
+                    "Actividad Económica"
+                ],
+                "summary": "Listar actividades activas",
+                "description": "Obtiene solo las actividades económicas con estado activo",
+                "operationId": "2df17dd8a77ca080bbe733a43ee92f43",
+                "responses": {
+                    "200": {
+                        "description": "Listado de actividades activas"
+                    }
+                }
+            }
+        },
+        "/api/actividades-economicas/{id}": {
+            "get": {
+                "tags": [
+                    "Actividad Económica"
+                ],
+                "summary": "Obtener una actividad económica",
+                "description": "Mostrar actividad específica",
+                "operationId": "08e42d8f09c509344ec60c63e050be97",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Actividad encontrada"
+                    },
+                    "404": {
+                        "description": "Actividad no encontrada"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Actividad Económica"
+                ],
+                "summary": "Actualizar una actividad económica",
+                "description": "Actualizar actividad",
+                "operationId": "b6f987a1840ade57c5f0ddab93b3dc65",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "descripcion",
+                                    "funcion_id"
+                                ],
+                                "properties": {
+                                    "descripcion": {
+                                        "type": "string",
+                                        "example": "Actividad actualizada"
+                                    },
+                                    "funcion_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Actividad actualizada correctamente"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Actividad Económica"
+                ],
+                "summary": "Eliminar (soft delete) una actividad económica",
+                "description": "Soft delete (marca estado = 0)",
+                "operationId": "6672fffea364378c1b83ba9fd9968acf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Actividad eliminada"
+                    }
+                }
+            }
+        },
+        "/api/actividades-economicas/{id}/restore": {
+            "post": {
+                "tags": [
+                    "Actividad Económica"
+                ],
+                "summary": "Restaurar una actividad económica eliminada",
+                "description": "Restaurar actividad eliminada",
+                "operationId": "0ab74da4523ee58476f5cdeffe497b67",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Actividad restaurada correctamente"
+                    }
+                }
+            }
+        },
+        "/api/clasificaciones": {
+            "get": {
+                "tags": [
+                    "Clasificación"
+                ],
+                "summary": "Listar clasificaciones",
+                "description": "Obtiene el listado de clasificaciones con filtros opcionales por establecimiento y función",
+                "operationId": "da023f8968a20c301ecf53dfbc870cb4",
+                "parameters": [
+                    {
+                        "name": "establecimiento_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "funcion_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de clasificaciones"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Clasificación"
+                ],
+                "summary": "Crear una nueva clasificación",
+                "description": "Crea una clasificación y ejecuta el modelo de Machine Learning según la función asociada",
+                "operationId": "05209098487bf31781b05ba699135071",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "establecimiento_id",
+                                    "actividad_economica_id"
+                                ],
+                                "properties": {
+                                    "establecimiento_id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "actividad_economica_id": {
+                                        "type": "integer",
+                                        "example": 5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Clasificación creada correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación o reglas de negocio"
+                    }
+                }
+            }
+        },
+        "/api/clasificaciones/{id}": {
+            "get": {
+                "tags": [
+                    "Clasificación"
+                ],
+                "summary": "Obtener una clasificación",
+                "description": "Mostrar una clasificación por ID",
+                "operationId": "64ca9e085230477ca6cb46bd3e800110",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Clasificación encontrada"
+                    },
+                    "404": {
+                        "description": "Clasificación no encontrada"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Clasificación"
+                ],
+                "summary": "Eliminar una clasificación (baja lógica)",
+                "description": "Eliminar (baja lógica) una clasificación",
+                "operationId": "fd71d08b5699e466395b9d028530b078",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Clasificación eliminada"
+                    }
+                }
+            }
+        },
+        "/api/clasificaciones/{id}/restore": {
+            "post": {
+                "tags": [
+                    "Clasificación"
+                ],
+                "summary": "Restaurar una clasificación eliminada",
+                "description": "Restaurar una clasificación eliminada",
+                "operationId": "4162023eaddcefb96308645dc2d8448f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Clasificación restaurada correctamente"
+                    }
+                }
+            }
+        },
+        "/api/cuestionarios": {
+            "get": {
+                "tags": [
+                    "Cuestionario"
+                ],
+                "summary": "Listar respuestas de cuestionarios",
+                "description": "Obtiene todas las respuestas de los cuestionarios con sus relaciones",
+                "operationId": "259931c9151f81c714d88588357eded5",
+                "responses": {
+                    "200": {
+                        "description": "Listado de respuestas del cuestionario"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Cuestionario"
+                ],
+                "summary": "Registrar respuestas de un cuestionario",
+                "description": "Registra las respuestas del cuestionario para una clasificación específica",
+                "operationId": "84f086f649164048bbcc4e472c153f67",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "clasificacion_id",
+                                    "respuestas"
+                                ],
+                                "properties": {
+                                    "clasificacion_id": {
+                                        "type": "integer",
+                                        "example": 12
+                                    },
+                                    "respuestas": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "pregunta_id": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "nivel_satisfaccion_id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Cuestionario registrado correctamente"
+                    },
+                    "400": {
+                        "description": "La clasificación ya respondió el cuestionario"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    },
+                    "500": {
+                        "description": "Error interno del servidor"
+                    }
+                }
+            }
+        },
+        "/api/cuestionarios/{clasificacionId}": {
+            "get": {
+                "tags": [
+                    "Cuestionario"
+                ],
+                "summary": "Obtener respuestas de un cuestionario por clasificación",
+                "description": "Obtener las respuestas de una clasificación",
+                "operationId": "bbfecf75aaba2a29f93479d5ec915cb5",
+                "parameters": [
+                    {
+                        "name": "clasificacionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Respuestas encontradas"
+                    },
+                    "404": {
+                        "description": "No hay respuestas registradas"
+                    }
+                }
+            }
+        },
+        "/api/establecimientos": {
+            "get": {
+                "tags": [
+                    "Establecimientos"
+                ],
+                "summary": "Listar establecimientos activos",
+                "description": "Listar todos los establecimientos activos",
+                "operationId": "a6b8b96ae573d6d24f8043b292b67c91",
+                "responses": {
+                    "200": {
+                        "description": "Listado de establecimientos activos"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Establecimientos"
+                ],
+                "summary": "Crear un establecimiento",
+                "description": "Crear un nuevo establecimiento",
+                "operationId": "14f5b014881b4e9a1730257d312811a1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nombre_comercial",
+                                    "razon_social",
+                                    "ruc",
+                                    "direccion",
+                                    "propietario",
+                                    "telefono"
+                                ],
+                                "properties": {
+                                    "nombre_comercial": {
+                                        "type": "string",
+                                        "example": "Botica Central"
+                                    },
+                                    "razon_social": {
+                                        "type": "string",
+                                        "example": "Botica Central SAC"
+                                    },
+                                    "ruc": {
+                                        "type": "string",
+                                        "example": "20123456789"
+                                    },
+                                    "direccion": {
+                                        "type": "string",
+                                        "example": "Av. Principal 123"
+                                    },
+                                    "latitud": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": -12.04318
+                                    },
+                                    "longitud": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": -77.02824
+                                    },
+                                    "actividad_economica_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "propietario": {
+                                        "type": "string",
+                                        "example": "Juan Pérez"
+                                    },
+                                    "telefono": {
+                                        "type": "string",
+                                        "example": "987654321"
+                                    },
+                                    "correo_electronico": {
+                                        "type": "string",
+                                        "example": "contacto@empresa.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Establecimiento creado correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            }
+        },
+        "/api/establecimientos/todos": {
+            "get": {
+                "tags": [
+                    "Establecimientos"
+                ],
+                "summary": "Listar todos los establecimientos",
+                "description": "Incluye establecimientos activos e inactivos (soft delete)",
+                "operationId": "5c27f41063a6211357eec85673753a80",
+                "responses": {
+                    "200": {
+                        "description": "Listado completo de establecimientos"
+                    }
+                }
+            }
+        },
+        "/api/establecimientos/{id}": {
+            "get": {
+                "tags": [
+                    "Establecimientos"
+                ],
+                "summary": "Obtener un establecimiento activo",
+                "description": "Mostrar un establecimiento activo por ID",
+                "operationId": "4970a1bd8b63a9fe60ecb878d574257c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Establecimiento encontrado"
+                    },
+                    "404": {
+                        "description": "Establecimiento no encontrado"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Establecimientos"
+                ],
+                "summary": "Actualizar un establecimiento",
+                "description": "Actualizar un establecimiento",
+                "operationId": "5bf91683561999c6d28d19c41f157ba9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nombre_comercial": {
+                                        "type": "string"
+                                    },
+                                    "razon_social": {
+                                        "type": "string"
+                                    },
+                                    "ruc": {
+                                        "type": "string"
+                                    },
+                                    "direccion": {
+                                        "type": "string"
+                                    },
+                                    "latitud": {
+                                        "type": "number"
+                                    },
+                                    "longitud": {
+                                        "type": "number"
+                                    },
+                                    "actividad_economica_id": {
+                                        "type": "integer"
+                                    },
+                                    "propietario": {
+                                        "type": "string"
+                                    },
+                                    "telefono": {
+                                        "type": "string"
+                                    },
+                                    "correo_electronico": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Establecimiento actualizado correctamente"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Establecimientos"
+                ],
+                "summary": "Eliminar un establecimiento",
+                "description": "Eliminar un establecimiento (baja lógica)",
+                "operationId": "ab3cf94595621e1bdc6fb5fd20064086",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Establecimiento eliminado lógicamente"
+                    }
+                }
+            }
+        },
+        "/api/establecimientos/{id}/restore": {
+            "patch": {
+                "tags": [
+                    "Establecimientos"
+                ],
+                "summary": "Restaurar un establecimiento",
+                "description": "Restaurar un establecimiento eliminado",
+                "operationId": "fde4eef53dc3bfd6e92c784035425733",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Establecimiento restaurado correctamente"
+                    }
+                }
+            }
+        },
+        "/api/funciones": {
+            "get": {
+                "tags": [
+                    "Funciones"
+                ],
+                "summary": "Listar todas las funciones",
+                "description": "Devuelve todas las funciones incluyendo las eliminadas lógicamente",
+                "operationId": "68c1c60abc3d06eaf833f18828c975f1",
+                "responses": {
+                    "200": {
+                        "description": "Listado de funciones"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Funciones"
+                ],
+                "summary": "Crear nueva función",
+                "operationId": "196d1de8be2d1411680ca0eb431c5e85",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nombre"
+                                ],
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string",
+                                        "example": "Inspección"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Función creada correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            }
+        },
+        "/api/funciones/activas": {
+            "get": {
+                "tags": [
+                    "Funciones"
+                ],
+                "summary": "Listar funciones activas",
+                "description": "Devuelve únicamente las funciones con estado activo",
+                "operationId": "9ed577e2f7cc8f08647d44d7b2cca950",
+                "responses": {
+                    "200": {
+                        "description": "Listado de funciones activas"
+                    }
+                }
+            }
+        },
+        "/api/funciones/{id}": {
+            "get": {
+                "tags": [
+                    "Funciones"
+                ],
+                "summary": "Mostrar una función",
+                "operationId": "ebf3d024786b2100c5a0a4baa8a61071",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Función encontrada"
+                    },
+                    "404": {
+                        "description": "Función no encontrada"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Funciones"
+                ],
+                "summary": "Actualizar función",
+                "operationId": "bbac4d18521403451be2d7379c669d2a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nombre"
+                                ],
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string",
+                                        "example": "Fiscalización"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Función actualizada correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Funciones"
+                ],
+                "summary": "Eliminar función",
+                "description": "Elimina la función de forma lógica (soft delete)",
+                "operationId": "fb751c2791d303400370fc5055bcdfbe",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Función eliminada"
+                    }
+                }
+            }
+        },
+        "/api/funciones/{id}/restore": {
+            "patch": {
+                "tags": [
+                    "Funciones"
+                ],
+                "summary": "Restaurar función eliminada",
+                "operationId": "73a4eda32065219d0cbe85fa4abfaa61",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Función restaurada correctamente"
+                    }
+                }
+            }
+        },
+        "/api/niveles-riesgo": {
+            "get": {
+                "tags": [
+                    "Nivel de Riesgo"
+                ],
+                "summary": "Listar niveles de riesgo",
+                "description": "Devuelve todos los niveles de riesgo registrados",
+                "operationId": "14d53d40cd36641961189090439a94d1",
+                "responses": {
+                    "200": {
+                        "description": "Listado de niveles de riesgo"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Nivel de Riesgo"
+                ],
+                "summary": "Crear nivel de riesgo",
+                "operationId": "5e380e3aa7c87251b73dbc3784bf648f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nombre"
+                                ],
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Alto"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Nivel de riesgo creado correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            }
+        },
+        "/api/niveles-riesgo/{id}": {
+            "get": {
+                "tags": [
+                    "Nivel de Riesgo"
+                ],
+                "summary": "Mostrar nivel de riesgo",
+                "description": "Devuelve un nivel de riesgo específico por ID",
+                "operationId": "6a5eedb2e8734ee9477e79644ebb24dc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Nivel de riesgo encontrado"
+                    },
+                    "404": {
+                        "description": "Nivel de riesgo no encontrado"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Nivel de Riesgo"
+                ],
+                "summary": "Actualizar nivel de riesgo",
+                "operationId": "ec8882eef7dfd848b3f6dbcab9f97845",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nombre"
+                                ],
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Riesgo Medio"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Nivel de riesgo actualizado correctamente"
+                    },
+                    "404": {
+                        "description": "Nivel de riesgo no encontrado"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            }
+        },
+        "/api/permissions": {
+            "get": {
+                "tags": [
+                    "Permisos"
+                ],
+                "summary": "Listar permisos",
+                "description": "Lista permisos activos, inactivos y/o eliminados lógicamente según filtros",
+                "operationId": "27bb1606a7b293d1d49f57bb94ae71f7",
+                "parameters": [
+                    {
+                        "name": "estado",
+                        "in": "query",
+                        "description": "Filtrar por estado (1=activo, 0=inactivo)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withTrashed",
+                        "in": "query",
+                        "description": "Incluir registros eliminados lógicamente",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de permisos"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Permisos"
+                ],
+                "summary": "Crear permiso",
+                "operationId": "37c918c86b5085b0eb088fa760c7175d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "editar-usuarios"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Permiso creado correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            }
+        },
+        "/api/permissions/{id}": {
+            "get": {
+                "tags": [
+                    "Permisos"
+                ],
+                "summary": "Mostrar permiso",
+                "description": "Devuelve un permiso específico (incluye soft deleted)",
+                "operationId": "397983813683c0c602fc1a036992367a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Permiso encontrado"
+                    },
+                    "404": {
+                        "description": "Permiso no encontrado"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Permisos"
+                ],
+                "summary": "Actualizar permiso",
+                "operationId": "db11d4d00da3ece5b99187df6f1e86e7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "crear-reportes"
+                                    },
+                                    "estado": {
+                                        "type": "integer",
+                                        "enum": [
+                                            0,
+                                            1
+                                        ],
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Permiso actualizado correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Permisos"
+                ],
+                "summary": "Eliminar permiso",
+                "description": "Elimina un permiso mediante soft delete",
+                "operationId": "f0afbd22579524a5bb83b653f7dd18dc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Permiso eliminado (soft delete)"
+                    }
+                }
+            }
+        },
+        "/api/permissions/{id}/deactivate": {
+            "patch": {
+                "tags": [
+                    "Permisos"
+                ],
+                "summary": "Desactivar permiso",
+                "operationId": "f6be9f4f8c0dee0d88b6ee8663cf64dd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Permiso desactivado"
+                    }
+                }
+            }
+        },
+        "/api/permissions/{id}/activate": {
+            "patch": {
+                "tags": [
+                    "Permisos"
+                ],
+                "summary": "Activar permiso",
+                "operationId": "371bf50d4c7e8a33883b358f53f42895",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Permiso activado"
+                    }
+                }
+            }
+        },
+        "/api/permissions/{id}/restore": {
+            "patch": {
+                "tags": [
+                    "Permisos"
+                ],
+                "summary": "Restaurar permiso",
+                "operationId": "a4d15ee25aa5243dee9ba290bfa77753",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Permiso restaurado correctamente"
+                    }
+                }
+            }
+        },
+        "/api/clasificaciones/{id}/pdf": {
+            "get": {
+                "tags": [
+                    "Reportes"
+                ],
+                "summary": "Generar reporte PDF de clasificación",
+                "description": "Genera el reporte de clasificación en PDF y lo muestra directamente en el navegador",
+                "operationId": "321c13d6d6616288f53fdb495dd2f93f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la clasificación",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PDF generado correctamente",
+                        "content": {
+                            "application/pdf": {}
+                        }
+                    },
+                    "404": {
+                        "description": "Clasificación no encontrada"
+                    }
+                }
+            }
+        },
+        "/api/clasificaciones/{id}/enviar-whatsapp": {
+            "post": {
+                "tags": [
+                    "Reportes"
+                ],
+                "summary": "Enviar enlace del PDF por WhatsApp",
+                "description": "Envía por WhatsApp el enlace del reporte PDF generado para una clasificación",
+                "operationId": "9e06a36c708586314256c9c3e4c5f52b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la clasificación",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "telefono"
+                                ],
+                                "properties": {
+                                    "telefono": {
+                                        "description": "Número de teléfono con código de país",
+                                        "type": "string",
+                                        "example": "+51999999999"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Reporte enviado exitosamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    },
+                    "500": {
+                        "description": "Error al enviar el mensaje por WhatsApp"
+                    }
+                }
+            }
+        },
+        "/api/roles": {
+            "get": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Listar roles",
+                "description": "Lista roles activos, inactivos y/o eliminados lógicamente según filtros",
+                "operationId": "77e3636d8592997ce9d6d27b50857a69",
+                "parameters": [
+                    {
+                        "name": "estado",
+                        "in": "query",
+                        "description": "Filtrar por estado (1=activo, 0=inactivo)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "withTrashed",
+                        "in": "query",
+                        "description": "Incluir roles eliminados lógicamente",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de roles"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Crear un nuevo rol",
+                "description": "Crea un rol y opcionalmente asigna permisos",
+                "operationId": "4a563842fbfcad237f63da43065fca3d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Administrador"
+                                    },
+                                    "permissions": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Rol creado correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            }
+        },
+        "/api/roles/{id}": {
+            "get": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Mostrar un rol",
+                "description": "Obtiene un rol específico junto con sus permisos",
+                "operationId": "7fb0667a295b7678a30353aa11739683",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del rol",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rol encontrado"
+                    },
+                    "404": {
+                        "description": "Rol no encontrado"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Actualizar un rol",
+                "description": "Actualiza el nombre, estado y permisos de un rol",
+                "operationId": "786d6990093a8eb3a56931f19a827e43",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del rol",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Supervisor"
+                                    },
+                                    "permissions": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            2,
+                                            3
+                                        ]
+                                    },
+                                    "estado": {
+                                        "type": "integer",
+                                        "enum": [
+                                            0,
+                                            1
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Rol actualizado correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Eliminar rol (soft delete)",
+                "operationId": "8285c46981c60ad600aa4077307aec04",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rol eliminado"
+                    }
+                }
+            }
+        },
+        "/api/roles/{id}/deactivate": {
+            "patch": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Desactivar rol",
+                "operationId": "f131fdc84fdb103c78fbbc8aea0e119c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rol desactivado"
+                    }
+                }
+            }
+        },
+        "/api/roles/{id}/activate": {
+            "patch": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Activar rol",
+                "operationId": "134c18e871f0ede1d35a98c9629369c9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rol activado"
+                    }
+                }
+            }
+        },
+        "/api/roles/{id}/restore": {
+            "patch": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Restaurar rol eliminado",
+                "operationId": "21d73824ece1f007ff5500c3f6667f28",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rol restaurado correctamente"
+                    }
+                }
+            }
+        },
+        "/api/subfunciones": {
+            "get": {
+                "tags": [
+                    "Subfunciones"
+                ],
+                "summary": "Listar subfunciones",
+                "description": "Obtiene el listado de todas las subfunciones con su función y niveles de riesgo",
+                "operationId": "c59470732fe20ad9a118a7a646c124e0",
+                "responses": {
+                    "200": {
+                        "description": "Listado de subfunciones",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "codigo": {
+                                                "type": "string",
+                                                "example": "SF-001"
+                                            },
+                                            "descripcion": {
+                                                "type": "string",
+                                                "example": "Subfunción administrativa"
+                                            },
+                                            "funcion": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "nombre": {
+                                                        "type": "string",
+                                                        "example": "Función principal"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "riesgoIncendio": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "nombre": {
+                                                        "type": "string",
+                                                        "example": "Alto"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "riesgoColapso": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "nombre": {
+                                                        "type": "string",
+                                                        "example": "Bajo"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Subfunciones"
+                ],
+                "summary": "Crear subfunción",
+                "description": "Registra una nueva subfunción",
+                "operationId": "426ebadbdd628abd57a7a595781ddfd4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "funcion_id",
+                                    "codigo",
+                                    "descripcion",
+                                    "riesgo_incendio",
+                                    "riesgo_colapso"
+                                ],
+                                "properties": {
+                                    "funcion_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "codigo": {
+                                        "type": "string",
+                                        "example": "SF-002"
+                                    },
+                                    "descripcion": {
+                                        "type": "string",
+                                        "example": "Subfunción operativa"
+                                    },
+                                    "riesgo_incendio": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "riesgo_colapso": {
+                                        "type": "integer",
+                                        "example": 3
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Subfunción creada correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            }
+        },
+        "/api/subfunciones/{id}": {
+            "get": {
+                "tags": [
+                    "Subfunciones"
+                ],
+                "summary": "Obtener subfunción",
+                "description": "Obtiene el detalle de una subfunción por ID",
+                "operationId": "23f8ec61efed8c722db0c44a3c9d6758",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle de la subfunción"
+                    },
+                    "404": {
+                        "description": "Subfunción no encontrada"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Subfunciones"
+                ],
+                "summary": "Actualizar subfunción",
+                "description": "Actualiza la información de una subfunción existente",
+                "operationId": "877e88407857506a3bffc5395b6fdc30",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "funcion_id",
+                                    "codigo",
+                                    "descripcion",
+                                    "riesgo_incendio",
+                                    "riesgo_colapso"
+                                ],
+                                "properties": {
+                                    "funcion_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "codigo": {
+                                        "type": "string",
+                                        "example": "SF-002"
+                                    },
+                                    "descripcion": {
+                                        "type": "string",
+                                        "example": "Subfunción actualizada"
+                                    },
+                                    "riesgo_incendio": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "riesgo_colapso": {
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Subfunción actualizada correctamente"
+                    },
+                    "404": {
+                        "description": "Subfunción no encontrada"
+                    }
+                }
+            }
+        },
+        "/api/users": {
+            "get": {
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Listar usuarios",
+                "description": "Obtiene todos los usuarios, incluyendo los eliminados (soft delete), junto con sus roles",
+                "operationId": "c457726701591d1183b53aa71fc13441",
+                "responses": {
+                    "200": {
+                        "description": "Listado de usuarios",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Juan Pérez"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "example": "juan@example.com"
+                                            },
+                                            "deleted_at": {
+                                                "type": "string",
+                                                "example": null,
+                                                "nullable": true
+                                            },
+                                            "roles": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "admin"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Crear usuario",
+                "description": "Registra un nuevo usuario y opcionalmente asigna un rol",
+                "operationId": "592819a0265360b2014512d6dbfaf0e7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "María López"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "maria@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "admin"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuario creado correctamente"
+                    },
+                    "422": {
+                        "description": "Error de validación"
+                    }
+                }
+            }
+        },
+        "/api/users/{id}": {
+            "get": {
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Obtener usuario",
+                "description": "Obtiene el detalle de un usuario específico con sus roles",
+                "operationId": "36a33ff774d5cba33c039dec2c3e0287",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalle del usuario"
+                    },
+                    "404": {
+                        "description": "Usuario no encontrado"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Actualizar usuario",
+                "description": "Actualiza la información del usuario y sus roles",
+                "operationId": "b9091397c8b25f12c6adb74be6ce3a5a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Juan Actualizado"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "juan.new@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "newpassword123"
+                                    },
+                                    "roles": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "example": "admin"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Usuario actualizado correctamente"
+                    },
+                    "404": {
+                        "description": "Usuario no encontrado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Eliminar usuario",
+                "description": "Elimina un usuario mediante soft delete",
+                "operationId": "fa56cffde745d3f152f95cbacd936c0b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Usuario eliminado correctamente"
+                    },
+                    "404": {
+                        "description": "Usuario no encontrado"
+                    }
+                }
+            }
+        },
+        "/api/users/{id}/restore": {
+            "put": {
+                "tags": [
+                    "Usuarios"
+                ],
+                "summary": "Restaurar usuario",
+                "description": "Restaura un usuario eliminado previamente (soft delete)",
+                "operationId": "1fb250dd533e5f93acefd38936d3a24a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuario restaurado correctamente"
+                    },
+                    "404": {
+                        "description": "Usuario no encontrado"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Ingresa tu token de autenticación Sanctum",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Autenticación",
+            "description": "Registro, inicio de sesión, perfil y cierre de sesión con tokens"
+        },
+        {
+            "name": "Actividad Económica",
+            "description": "Gestión de actividades económicas"
+        },
+        {
+            "name": "Clasificación",
+            "description": "Gestión de clasificaciones de riesgo mediante ML"
+        },
+        {
+            "name": "Cuestionario",
+            "description": "Gestión de cuestionarios de satisfacción asociados a clasificaciones"
+        },
+        {
+            "name": "Establecimientos",
+            "description": "Gestión de establecimientos"
+        },
+        {
+            "name": "Subfunciones",
+            "description": "Gestión de subfunciones asociadas a funciones y niveles de riesgo"
+        },
+        {
+            "name": "Usuarios",
+            "description": "Gestión de usuarios y asignación de roles"
+        },
+        {
+            "name": "Funciones",
+            "description": "Funciones"
+        },
+        {
+            "name": "Nivel de Riesgo",
+            "description": "Nivel de Riesgo"
+        },
+        {
+            "name": "Permisos",
+            "description": "Permisos"
+        },
+        {
+            "name": "Reportes",
+            "description": "Reportes"
+        },
+        {
+            "name": "Roles",
+            "description": "Roles"
+        }
+    ]
+}

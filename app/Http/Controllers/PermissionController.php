@@ -7,7 +7,32 @@ use App\Models\Permission; // tu modelo extendido con SoftDeletes y estado
 
 class PermissionController extends Controller
 {
-    // Listar permisos (activos/inactivos/softdeleted)
+    /**
+     * @OA\Get(
+     *     path="/api/permissions",
+     *     summary="Listar permisos",
+     *     description="Lista permisos activos, inactivos y/o eliminados lógicamente según filtros",
+     *     tags={"Permisos"},
+     *     @OA\Parameter(
+     *         name="estado",
+     *         in="query",
+     *         required=false,
+     *         description="Filtrar por estado (1=activo, 0=inactivo)",
+     *         @OA\Schema(type="integer", enum={0,1})
+     *     ),
+     *     @OA\Parameter(
+     *         name="withTrashed",
+     *         in="query",
+     *         required=false,
+     *         description="Incluir registros eliminados lógicamente",
+     *         @OA\Schema(type="boolean")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Listado de permisos"
+     *     )
+     * )
+     */
     public function index(Request $request)
     {
         $query = Permission::query();
@@ -23,7 +48,32 @@ class PermissionController extends Controller
         return response()->json($query->get());
     }
 
-    // Crear un nuevo permiso
+    /**
+     * @OA\Post(
+     *     path="/api/permissions",
+     *     summary="Crear permiso",
+     *     tags={"Permisos"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name"},
+     *             @OA\Property(
+     *                 property="name",
+     *                 type="string",
+     *                 example="editar-usuarios"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Permiso creado correctamente"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación"
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -38,14 +88,63 @@ class PermissionController extends Controller
         return response()->json($permiso, 201);
     }
 
-    // Mostrar un permiso específico
+    /**
+     * @OA\Get(
+     *     path="/api/permissions/{id}",
+     *     summary="Mostrar permiso",
+     *     description="Devuelve un permiso específico (incluye soft deleted)",
+     *     tags={"Permisos"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Permiso encontrado"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Permiso no encontrado"
+     *     )
+     * )
+     */
     public function show($id)
     {
         $permiso = Permission::withTrashed()->findOrFail($id);
         return response()->json($permiso);
     }
 
-    // Actualizar un permiso
+    /**
+     * @OA\Put(
+     *     path="/api/permissions/{id}",
+     *     summary="Actualizar permiso",
+     *     tags={"Permisos"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name"},
+     *             @OA\Property(property="name", type="string", example="crear-reportes"),
+     *             @OA\Property(property="estado", type="integer", enum={0,1}, example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Permiso actualizado correctamente"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación"
+     *     )
+     * )
+     */
     public function update(Request $request, $id)
     {
         $permiso = Permission::withTrashed()->findOrFail($id);
@@ -63,7 +162,23 @@ class PermissionController extends Controller
         return response()->json($permiso);
     }
 
-    // Desactivar (estado = 0)
+    /**
+     * @OA\Patch(
+     *     path="/api/permissions/{id}/deactivate",
+     *     summary="Desactivar permiso",
+     *     tags={"Permisos"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Permiso desactivado"
+     *     )
+     * )
+     */
     public function deactivate($id)
     {
         $permiso = Permission::findOrFail($id);
@@ -72,7 +187,23 @@ class PermissionController extends Controller
         return response()->json(['message' => 'Permiso desactivado']);
     }
 
-    // Activar (estado = 1)
+    /**
+     * @OA\Patch(
+     *     path="/api/permissions/{id}/activate",
+     *     summary="Activar permiso",
+     *     tags={"Permisos"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Permiso activado"
+     *     )
+     * )
+     */
     public function activate($id)
     {
         $permiso = Permission::findOrFail($id);
@@ -81,7 +212,24 @@ class PermissionController extends Controller
         return response()->json(['message' => 'Permiso activado']);
     }
 
-    // Soft delete
+    /**
+     * @OA\Delete(
+     *     path="/api/permissions/{id}",
+     *     summary="Eliminar permiso",
+     *     description="Elimina un permiso mediante soft delete",
+     *     tags={"Permisos"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Permiso eliminado (soft delete)"
+     *     )
+     * )
+     */
     public function destroy($id)
     {
         $permiso = Permission::findOrFail($id);
@@ -90,7 +238,23 @@ class PermissionController extends Controller
         return response()->json(['message' => 'Permiso eliminado (soft delete)']);
     }
 
-    // Restaurar un permiso
+    /**
+     * @OA\Patch(
+     *     path="/api/permissions/{id}/restore",
+     *     summary="Restaurar permiso",
+     *     tags={"Permisos"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Permiso restaurado correctamente"
+     *     )
+     * )
+     */
     public function restore($id)
     {
         $permiso = Permission::withTrashed()->findOrFail($id);
@@ -98,5 +262,4 @@ class PermissionController extends Controller
 
         return response()->json(['message' => 'Permiso restaurado correctamente']);
     }
-
 }

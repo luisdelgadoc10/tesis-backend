@@ -8,8 +8,47 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * @OA\Tag(
+ *     name="Autenticación",
+ *     description="Registro, inicio de sesión, perfil y cierre de sesión con tokens"
+ * )
+ */
 class AuthController extends Controller
 {
+    /**
+     * Registrar un nuevo usuario
+     *
+     * @OA\Post(
+     *     path="/api/register",
+     *     tags={"Autenticación"},
+     *     summary="Registrar usuario",
+     *     description="Registra un nuevo usuario y genera un token de autenticación",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","email","password","password_confirmation"},
+     *             @OA\Property(property="name", type="string", example="Juan Pérez"),
+     *             @OA\Property(property="email", type="string", example="juan@example.com"),
+     *             @OA\Property(property="password", type="string", example="secret123"),
+     *             @OA\Property(property="password_confirmation", type="string", example="secret123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Usuario registrado correctamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="user", type="object"),
+     *             @OA\Property(property="token", type="string", example="1|abc123token"),
+     *             @OA\Property(property="message", type="string", example="Usuario registrado exitosamente")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación"
+     *     )
+     * )
+     */
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -24,7 +63,6 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        // ⚡ Crear token en lugar de sesión
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -34,6 +72,40 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /**
+     * Iniciar sesión
+     *
+     * @OA\Post(
+     *     path="/api/login",
+     *     tags={"Autenticación"},
+     *     summary="Iniciar sesión",
+     *     description="Autentica al usuario y devuelve un token si las credenciales son válidas",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", example="juan@example.com"),
+     *             @OA\Property(property="password", type="string", example="secret123")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Inicio de sesión exitoso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="token", type="string", example="1|xyz456token"),
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Credenciales incorrectas"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Usuario inactivo"
+     *     )
+     * )
+     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -49,7 +121,6 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // RECHAZAR login de usuarios inactivos desde el inicio
         if ($user->estado != 1) {
             return response()->json([
                 'message' => 'Usuario inactivo. Contacte al administrador.'
@@ -65,24 +136,42 @@ class AuthController extends Controller
         ]);
     }
 
-
+    /**
+     * Obtener perfil del usuario autenticado
+     *
+     * @OA\Get(
+     *     path="/api/profile",
+     *     tags={"Autenticación"},
+     *     summary="Perfil del usuario",
+     *     description="Obtiene el perfil del usuario autenticado con roles y permisos",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Perfil obtenido correctamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autenticado"
+     *     )
+     * )
+     */
     public function profile(Request $request)
     {
-        // ✅ Carga roles, permisos directos y permisos de roles
         $user = $request->user()->load([
             'roles',
             'permissions',
-            'roles.permissions' // ← ¡Esto es clave!
+            'roles.permissions'
         ]);
 
-        // ✅ Combina permisos directos + permisos de roles
         $allPermissions = $user->permissions->merge(
             $user->roles->flatMap(function ($role) {
                 return $role->permissions;
             })
         )->unique('id');
 
-        // ✅ Devuelve el usuario con todos los permisos
         $user->setRelation('permissions', $allPermissions);
 
         return response()->json([
@@ -90,9 +179,30 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Cerrar sesión
+     *
+     * @OA\Post(
+     *     path="/api/logout",
+     *     tags={"Autenticación"},
+     *     summary="Cerrar sesión",
+     *     description="Revoca el token actual del usuario autenticado",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Sesión cerrada correctamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Sesión cerrada exitosamente")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autenticado"
+     *     )
+     * )
+     */
     public function logout(Request $request)
     {
-        // ⚡ Eliminar el token actual
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([

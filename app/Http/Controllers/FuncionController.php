@@ -8,7 +8,16 @@ use Illuminate\Http\Request;
 class FuncionController extends Controller
 {
     /**
-     * Listar todas las funciones 
+     * @OA\Get(
+     *     path="/api/funciones",
+     *     summary="Listar todas las funciones",
+     *     description="Devuelve todas las funciones incluyendo las eliminadas lógicamente",
+     *     tags={"Funciones"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Listado de funciones"
+     *     )
+     * )
      */
     public function index()
     {
@@ -17,7 +26,16 @@ class FuncionController extends Controller
     }
 
     /**
-     * Listar solo funciones activas
+     * @OA\Get(
+     *     path="/api/funciones/activas",
+     *     summary="Listar funciones activas",
+     *     description="Devuelve únicamente las funciones con estado activo",
+     *     tags={"Funciones"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Listado de funciones activas"
+     *     )
+     * )
      */
     public function activas()
     {
@@ -26,7 +44,26 @@ class FuncionController extends Controller
     }
 
     /**
-     * Crear nueva función
+     * @OA\Post(
+     *     path="/api/funciones",
+     *     summary="Crear nueva función",
+     *     tags={"Funciones"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nombre"},
+     *             @OA\Property(property="nombre", type="string", example="Inspección")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Función creada correctamente"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación"
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -42,7 +79,25 @@ class FuncionController extends Controller
     }
 
     /**
-     * Mostrar función específica
+     * @OA\Get(
+     *     path="/api/funciones/{id}",
+     *     summary="Mostrar una función",
+     *     tags={"Funciones"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Función encontrada"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Función no encontrada"
+     *     )
+     * )
      */
     public function show($id)
     {
@@ -51,7 +106,32 @@ class FuncionController extends Controller
     }
 
     /**
-     * Actualizar función
+     * @OA\Put(
+     *     path="/api/funciones/{id}",
+     *     summary="Actualizar función",
+     *     tags={"Funciones"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nombre"},
+     *             @OA\Property(property="nombre", type="string", example="Fiscalización")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Función actualizada correctamente"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación"
+     *     )
+     * )
      */
     public function update(Request $request, $id)
     {
@@ -69,7 +149,22 @@ class FuncionController extends Controller
     }
 
     /**
-     * Soft delete (marca estado = 0)
+     * @OA\Delete(
+     *     path="/api/funciones/{id}",
+     *     summary="Eliminar función",
+     *     description="Elimina la función de forma lógica (soft delete)",
+     *     tags={"Funciones"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Función eliminada"
+     *     )
+     * )
      */
     public function destroy($id)
     {
@@ -79,7 +174,21 @@ class FuncionController extends Controller
     }
 
     /**
-     * Restaurar función eliminada
+     * @OA\Patch(
+     *     path="/api/funciones/{id}/restore",
+     *     summary="Restaurar función eliminada",
+     *     tags={"Funciones"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Función restaurada correctamente"
+     *     )
+     * )
      */
     public function restore($id)
     {

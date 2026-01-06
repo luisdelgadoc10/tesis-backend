@@ -11,7 +11,32 @@ use Twilio\Rest\Client;
 class ReporteController extends Controller
 {
     /**
-     * Genera el PDF y lo muestra en el navegador.
+     * @OA\Get(
+     *     path="/api/clasificaciones/{id}/pdf",
+     *     summary="Generar reporte PDF de clasificación",
+     *     description="Genera el reporte de clasificación en PDF y lo muestra directamente en el navegador",
+     *     tags={"Reportes"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de la clasificación",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="PDF generado correctamente",
+     *         content={
+     *             @OA\MediaType(
+     *                 mediaType="application/pdf"
+     *             )
+     *         }
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Clasificación no encontrada"
+     *     )
+     * )
      */
     public function clasificacionPdf($id)
     {
@@ -27,7 +52,43 @@ class ReporteController extends Controller
     }
 
     /**
-     * Envía por WhatsApp el link del reporte PDF.
+     * @OA\Post(
+     *     path="/api/clasificaciones/{id}/enviar-whatsapp",
+     *     summary="Enviar enlace del PDF por WhatsApp",
+     *     description="Envía por WhatsApp el enlace del reporte PDF generado para una clasificación",
+     *     tags={"Reportes"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de la clasificación",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"telefono"},
+     *             @OA\Property(
+     *                 property="telefono",
+     *                 type="string",
+     *                 example="+51999999999",
+     *                 description="Número de teléfono con código de país"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Reporte enviado exitosamente"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error al enviar el mensaje por WhatsApp"
+     *     )
+     * )
      */
     public function enviarLinkPdfWssp(Request $request, $id)
     {
@@ -65,11 +126,9 @@ class ReporteController extends Controller
                 $detalle->tiempo_envio_reporte = $tiempoS;
                 $detalle->save();
             } elseif ($detalle->tiempo_envio_reporte === null) {
-                // Si existe pero aún no se ha registrado el tiempo, también lo guarda
                 $detalle->tiempo_envio_reporte = $tiempoS;
                 $detalle->save();
             }
-            // Si ya tiene tiempo registrado, no se modifica nada más
 
             return response()->json([
                 'success' => true,
@@ -84,7 +143,4 @@ class ReporteController extends Controller
             ], 500);
         }
     }
-
-
-
 }
